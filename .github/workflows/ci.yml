@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24 # same as local: npm 11 wrote the lock files, npm 10 (Node 22) rejects them
       - name: Server tests
         working-directory: server
         run: |

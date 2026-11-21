@@ -72,14 +72,14 @@ The load test runs bots and server on one laptop, so it is a best case; deployed
 |---|---|
 | Frontend | React 19, Vite 8, Tailwind 4, React Router 8, CodeMirror 6 (lazy-loaded) |
 | Real time | Socket.IO 4 (WebSocket transport only, compression off) |
-| Backend | Node 24, Express 5, Zod 4, bcrypt + JWT for hosts |
+| Backend | Node 24 (npm 11), Express 5, Zod 4, bcrypt + JWT for hosts |
 | Database | MongoDB Atlas + Mongoose 9 |
 | AI | Gemini via `@google/genai` (JSON schema output, model fallback list, 30 s timeout) |
 | Code execution | Judge0 CE public instance (swappable: one module, `JUDGE0_URL`) |
 
 ## Run it locally
 
-Needs Node 22+ and a MongoDB Atlas connection string. A Gemini key is only needed for AI drafts.
+Needs Node 24 (npm 11: the lock files were written by it) and a MongoDB Atlas connection string. A Gemini key is only needed for AI drafts.
 
 ```powershell
 cd server

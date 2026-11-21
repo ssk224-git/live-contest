@@ -11,7 +11,7 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
-        value: "22"
+        value: "24" # npm 11 wrote the lock files; npm 10 (Node 22) rejects them in npm ci
       - key: CLIENT_URL
         sync: false # your Vercel URL, e.g. https://live-contest.vercel.app
       - key: MONGODB_URI
