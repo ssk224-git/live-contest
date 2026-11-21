@@ -11,7 +11,8 @@
     "test": "node --test --test-force-exit",
     "check:gemini": "node scripts/check-gemini.js",
     "check:judge": "node scripts/check-judge.js",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "load-test": "node scripts/load-test.js"
   },
   "engines": {
     "node": ">=22"

@@ -108,6 +108,11 @@ function ContestWorkspace({ roomCode, joined, title, languages, penaltyMin, phas
   const over = phase === 'finished';
   const lastSubmitId = useRef(null);
 
+  // When the final results arrive, show the leaderboard once (the student can go back to the problems).
+  useEffect(() => {
+    if (final) setView('board');
+  }, [final]);
+
   // Switching problem or language loads that draft.
   useEffect(() => {
     setCode(loadDraft(roomCode, active, language));
@@ -220,7 +225,7 @@ function ContestWorkspace({ roomCode, joined, title, languages, penaltyMin, phas
         </button>
       </nav>
 
-      {view === 'board' || (over && final) ? (
+      {view === 'board' ? (
         <main className="mx-auto w-full max-w-5xl space-y-6 p-4">
           {over && final && <ContestPodium podium={final.podium} meId={joined.publicId} />}
           <ContestBoard board={board} problemCount={problems.length} meId={joined.publicId} />

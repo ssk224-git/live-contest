@@ -23,11 +23,4 @@ export function useCountdown(endsAt) {
   return left;
 }
 
-// 754000 -> "12:34", 5000 -> "0:05".
-export function formatClock(ms) {
-  const total = Math.ceil(Math.max(0, ms) / 1000);
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = String(total % 60).padStart(2, '0');
-  return h ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`;
-}
+export { formatClock } from './format.js';

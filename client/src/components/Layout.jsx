@@ -13,7 +13,7 @@ export default function Layout({ children, wide = false }) {
     <div className="min-h-full">
       <header className="border-b border-slate-200 bg-white">
         <div className={`mx-auto flex h-14 items-center gap-4 px-4 ${wide ? 'max-w-7xl' : 'max-w-5xl'}`}>
-          <Link to="/" className="flex items-center gap-2 font-bold text-slate-900">
+          <Link to="/" className="flex items-center gap-2 font-bold whitespace-nowrap text-slate-900">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-white">
               <Code2 size={18} />
             </span>

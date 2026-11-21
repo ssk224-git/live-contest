@@ -1,18 +1,9 @@
 // Building blocks shared by the host and student contest screens.
 import { Trophy, Medal } from 'lucide-react';
 import { LANGUAGES } from '../lib/languages.js';
+import { formatMs, LETTER } from '../lib/format.js';
 
-export const LETTER = (i) => String.fromCharCode(65 + i);
-
-// 754000 -> "12:34", 3_725_000 -> "1:02:05".
-export function formatMs(ms) {
-  if (ms === null || ms === undefined) return '';
-  const total = Math.round(ms / 1000);
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = String(total % 60).padStart(2, '0');
-  return h ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`;
-}
+export { formatMs, LETTER };
 
 const VERDICT_STYLES = {
   Accepted: 'bg-emerald-100 text-emerald-800',

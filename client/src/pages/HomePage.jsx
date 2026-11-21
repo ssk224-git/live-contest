@@ -71,7 +71,8 @@ export default function HomePage() {
           </p>
         </div>
 
-        <form onSubmit={join} className="card space-y-4">
+        {/* order-first: on phones (where students join) the join box comes before the description */}
+        <form onSubmit={join} className="card order-first space-y-4 md:order-none">
           <h2 className="text-lg font-bold">Join an event</h2>
           <div>
             <label className="label" htmlFor="code">
