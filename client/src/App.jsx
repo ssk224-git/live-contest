@@ -8,6 +8,7 @@ import QuizEditorPage from './pages/QuizEditorPage.jsx';
 import StatusPage from './pages/StatusPage.jsx';
 import HostPage from './pages/HostPage.jsx';
 import PlayPage from './pages/PlayPage.jsx';
+import HistoryPage from './pages/HistoryPage.jsx';
 
 export default function App() {
   return (
@@ -50,6 +51,14 @@ export default function App() {
           }
         />
         <Route path="/play/:code" element={<PlayPage />} />
+        <Route
+          path="/history"
+          element={
+            <RequireHost>
+              <HistoryPage />
+            </RequireHost>
+          }
+        />
         <Route path="*" element={<p className="p-8">Page not found.</p>} />
       </Routes>
     </AuthProvider>
