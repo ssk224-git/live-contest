@@ -24,6 +24,10 @@ const isRetryable = (err) => RETRYABLE.has(statusOf(err)) || isTimeout(err);
 // Models that rejected the thinking setting; we stop sending it to them.
 const noThinking = new Set();
 
+// When a model's DAILY free quota is used up, skip it for an hour instead of wasting a call each time.
+const quotaBlockedUntil = new Map(); // model -> timestamp
+const isDailyQuota = (err) => statusOf(err) === 429 && /per ?day/i.test(String(err?.message));
+
 // Calls one model once, giving up after timeoutMs (default 30 s).
 async function callModel(model, prompt, { temperature, timeoutMs, schema, useThinking }) {
   const level = config.geminiThinkingLevel;
@@ -82,23 +86,34 @@ function friendlyError(err) {
 // Tries each model in GEMINI_MODEL in order until one answers. Throws an AppError if all fail.
 export async function generateJson(prompt, { schema, temperature = 0.6, timeoutMs = config.geminiTimeoutMs, models = config.geminiModels } = {}) {
   let lastError;
-  for (const model of models) {
-    const started = Date.now();
-    try {
-      const response = await callModel(model, prompt, { temperature, timeoutMs, schema, useThinking: true });
-      const text = response.text ?? '';
-      let data;
+  const firstPassStarted = Date.now();
+  // Pass 2 only happens if pass 1 failed FAST on busy/overloaded models (a short blip), never after timeouts.
+  for (let pass = 1; pass <= 2; pass += 1) {
+    const usable = models.filter((m) => !(quotaBlockedUntil.get(m) > Date.now()));
+    for (const model of usable.length ? usable : models) {
+      const started = Date.now();
       try {
-        data = parseJson(text);
-      } catch {
-        data = { __notJson: text.slice(0, 200) }; // let the validator report it, so we retry with feedback
+        const response = await callModel(model, prompt, { temperature, timeoutMs, schema, useThinking: true });
+        const text = response.text ?? '';
+        let data;
+        try {
+          data = parseJson(text);
+        } catch {
+          data = { __notJson: text.slice(0, 200) }; // let the validator report it, so we retry with feedback
+        }
+        return { data, model, ms: Date.now() - started };
+      } catch (err) {
+        lastError = err;
+        if (isDailyQuota(err)) quotaBlockedUntil.set(model, Date.now() + 60 * 60 * 1000);
+        if (!isRetryable(err)) throw friendlyError(err);
+        console.warn(`[gemini] ${model} failed (${statusOf(err) || err.message}${isDailyQuota(err) ? ', daily quota: skipping it for 1 hour' : ''}); trying the next model`);
       }
-      return { data, model, ms: Date.now() - started };
-    } catch (err) {
-      lastError = err;
-      if (!isRetryable(err)) break;
-      console.warn(`[gemini] ${model} failed (${statusOf(err) || err.message}); trying the next model`);
     }
+    const blip = !isTimeout(lastError) && Date.now() - firstPassStarted < 15_000;
+    if (pass === 1 && blip) {
+      console.warn('[gemini] every model was busy; trying once more in 2 s');
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } else break;
   }
   throw friendlyError(lastError);
 }
