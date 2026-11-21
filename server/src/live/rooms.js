@@ -78,7 +78,7 @@ export function addOrRejoinPlayer(room, { playerId, nickname, socketId }, makePl
     socketId,
     connected: true,
     joinedAt: Date.now(),
-    ...makePlayer(),
+    ...makePlayer(room),
   };
   room.players.set(player.playerId, player);
   return { player, rejoined: false };

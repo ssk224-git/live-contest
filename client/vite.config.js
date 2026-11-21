@@ -6,4 +6,6 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: { port: 5174, strictPort: true },
+  // The code editor chunk (~700 KB) is lazy-loaded only on contest pages, so quiz players never download it.
+  build: { chunkSizeWarningLimit: 800 },
 });
