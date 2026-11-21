@@ -6,6 +6,8 @@ import helmet from 'helmet';
 import { config } from './config.js';
 import { dbConnected } from './db.js';
 import { AppError } from './utils/AppError.js';
+import { authRouter } from './routes/auth.js';
+import { quizzesRouter } from './routes/quizzes.js';
 
 export function createApp() {
   const app = express();
@@ -19,6 +21,9 @@ export function createApp() {
   app.get('/api/health', (req, res) => {
     res.json({ ok: true, db: dbConnected(), time: Date.now() });
   });
+
+  app.use('/api/auth', authRouter);
+  app.use('/api/quizzes', quizzesRouter);
 
   // Unknown /api route.
   app.use('/api', (req, res, next) => next(new AppError(404, 'Not found')));

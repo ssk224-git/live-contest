@@ -10,7 +10,8 @@
     "dev": "node --watch src/index.js",
     "test": "node --test",
     "check:gemini": "node scripts/check-gemini.js",
-    "check:judge": "node scripts/check-judge.js"
+    "check:judge": "node scripts/check-judge.js",
+    "seed": "node scripts/seed.js"
   },
   "engines": {
     "node": ">=22"
