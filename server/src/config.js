@@ -29,7 +29,10 @@ export const config = {
   geminiKey: clean(process.env.GEMINI_API_KEY),
   // First model is tried first; the others are backups for overloaded (503),
   // rate-limited (429), retired (404) or timed-out models.
+  // Used for coding problems, where a correct reference solution matters more than speed.
   geminiModels: list(clean(process.env.GEMINI_MODEL) || 'gemini-3.6-flash,gemini-3.5-flash,gemini-3.5-flash-lite'),
+  // Used for MCQ drafts: the fast model first (measured 2-8 s vs up to 61 s), the validator + retry catch mistakes.
+  geminiQuizModels: list(clean(process.env.GEMINI_QUIZ_MODEL) || 'gemini-3.5-flash-lite,gemini-3.6-flash,gemini-3.5-flash'),
   // How much hidden "thinking" the model does before answering. "low" is fastest. "off" = model default.
   geminiThinkingLevel: clean(process.env.GEMINI_THINKING_LEVEL) || 'low',
   // Give up on one model call after this many ms, so a silent model can never hang a request.

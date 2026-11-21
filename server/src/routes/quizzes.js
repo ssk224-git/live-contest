@@ -1,13 +1,29 @@
 // /api/quizzes: a host's MCQ quizzes. Every route needs a logged-in host.
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { Quiz } from '../models/Quiz.js';
 import { requireAuth } from '../middleware/auth.js';
 import { validateBody } from '../middleware/validate.js';
-import { quizSchema } from '../validation/schemas.js';
+import { quizSchema, generateQuizSchema } from '../validation/schemas.js';
 import { findOwned } from '../utils/findOwned.js';
+import { generateQuiz } from '../ai/quizGenerator.js';
 
 export const quizzesRouter = Router();
 quizzesRouter.use(requireAuth);
+
+// AI calls cost quota: at most 15 drafts per 10 minutes per host.
+const aiLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 15,
+  keyGenerator: (req) => req.user.id,
+  message: { error: 'Too many AI drafts. Wait a few minutes and try again.' },
+});
+
+// Asks the AI for a draft. Nothing is saved: the host reviews it first.
+quizzesRouter.post('/generate', aiLimiter, validateBody(generateQuizSchema), async (req, res) => {
+  const result = await generateQuiz(req.body);
+  res.json(result);
+});
 
 // The host's quizzes, newest first (without the questions, to keep the list small).
 quizzesRouter.get('/', async (req, res) => {
