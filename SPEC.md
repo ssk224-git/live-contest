@@ -150,3 +150,17 @@ Socket events (in addition to `host:join` / `player:join` from the original spec
 | M7 | AI problem drafts cross-checked by the reference solution | Drafts for several topics, dropped tests reported; unit test for drop/retry |
 | M8 | Live contest: editor, Run, Submit, verdicts, live leaderboard, host feed, CSV | Host + 2 student tabs; every language gets AC and WA; leaderboard updates live |
 | M9 | Hardening, tests, docs, deploy config | Tests pass, client builds, README + LEARNING.md written |
+
+## 7. Decisions made while building (2026-11-21)
+
+- **MCQ drafts use the fast model first** (`GEMINI_QUIZ_MODEL`, default `gemini-3.5-flash-lite` first): 2–8 s instead of up to 61 s with `gemini-3.6-flash` first; the validator and retry catch its mistakes. Coding problems keep the stronger model first (`GEMINI_MODEL`).
+- After a **daily-quota 429** a model is skipped for an hour; if every model is briefly overloaded (503), one more quick pass is made.
+- **Python/JavaScript syntax errors count as Compile Error** (no penalty), like LeetCode. Judge0 reports them as runtime errors because those languages have no compile step.
+- **Submit hides stderr** for hidden tests (a program could print the hidden input to stderr and crash on purpose). Run on examples shows it.
+- **Verify drops hidden tests only when every example passes.** If an example fails, the reference solution itself is suspect, so nothing is dropped and the problem is flagged.
+- **The end of a contest waits for in-flight judging** (up to 60 s) before the final standings are sent and saved, so a submission made just before the buzzer still counts.
+- The preview launch entry runs `npm start`, not `npm run dev`: `node --watch` restarted the server whenever OneDrive touched a file, which wiped the live rooms.
+
+## 8. Status
+
+All milestones M0–M9 are done and verified locally (see README "Measured results" and `docs/metrics.md`). Not done yet: deploying (Render + Vercel), a test on real phones over mobile data, and deployed load-test numbers.

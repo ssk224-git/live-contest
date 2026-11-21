@@ -1,0 +1,23 @@
+# Runs the tests and the client build on every push.
+# Database tests skip themselves when MONGODB_URI is not set (no secrets in CI).
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Server tests
+        working-directory: server
+        run: |
+          npm ci
+          npm test
+      - name: Client tests and build
+        working-directory: client
+        run: |
+          npm ci
+          npm test
+          npm run build
