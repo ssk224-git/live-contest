@@ -9,6 +9,7 @@ import StatusPage from './pages/StatusPage.jsx';
 import HostPage from './pages/HostPage.jsx';
 import PlayPage from './pages/PlayPage.jsx';
 import HistoryPage from './pages/HistoryPage.jsx';
+import ContestEditorPage from './pages/ContestEditorPage.jsx';
 
 export default function App() {
   return (
@@ -51,6 +52,22 @@ export default function App() {
           }
         />
         <Route path="/play/:code" element={<PlayPage />} />
+        <Route
+          path="/contests/new"
+          element={
+            <RequireHost>
+              <ContestEditorPage />
+            </RequireHost>
+          }
+        />
+        <Route
+          path="/contests/:id"
+          element={
+            <RequireHost>
+              <ContestEditorPage />
+            </RequireHost>
+          }
+        />
         <Route
           path="/history"
           element={

@@ -9,6 +9,8 @@ import { AppError } from './utils/AppError.js';
 import { authRouter } from './routes/auth.js';
 import { quizzesRouter } from './routes/quizzes.js';
 import { sessionsRouter } from './routes/sessions.js';
+import { contestsRouter } from './routes/contests.js';
+import { JudgeUnavailableError } from './judge/judge0.js';
 
 export function createApp() {
   const app = express();
@@ -26,6 +28,7 @@ export function createApp() {
   app.use('/api/auth', authRouter);
   app.use('/api/quizzes', quizzesRouter);
   app.use('/api/sessions', sessionsRouter);
+  app.use('/api/contests', contestsRouter);
 
   // Unknown /api route.
   app.use('/api', (req, res, next) => next(new AppError(404, 'Not found')));
@@ -36,6 +39,7 @@ export function createApp() {
     if (err instanceof AppError) {
       return res.status(err.status).json({ error: err.message, ...err.extra });
     }
+    if (err instanceof JudgeUnavailableError) return res.status(503).json({ error: err.message });
     if (err?.type === 'entity.parse.failed') return res.status(400).json({ error: 'The request body is not valid JSON' });
     if (err?.type === 'entity.too.large') return res.status(413).json({ error: 'The request is too large' });
     console.error('[error]', err);

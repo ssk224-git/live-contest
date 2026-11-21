@@ -70,6 +70,31 @@ test('quiz create, list, edit, delete; another host gets 403', async (t) => {
   assert.equal((await api(srv.base, 'GET', '/api/quizzes/not-an-id', null, alice.token)).status, 404);
 });
 
+test('contests: at most 4 problems, owner-only, verified badge resets when tests change', async (t) => {
+  if (!srv) return t.skip('MONGODB_URI not set');
+  const { sampleContestData } = await import('../scripts/sampleData.js');
+  const alice = await registerHost(srv.base, 'Alice');
+  const bob = await registerHost(srv.base, 'Bob');
+  emails.push(alice.email, bob.email);
+
+  const body = sampleContestData();
+  const five = { ...body, problems: [...body.problems, ...body.problems, body.problems[0]] };
+  const tooMany = await api(srv.base, 'POST', '/api/contests', five, alice.token);
+  assert.equal(tooMany.status, 400);
+  assert.match(tooMany.body.error, /At most 4 problems/);
+
+  // A client cannot just claim "verified": without a matching fingerprint it is reset.
+  body.problems[0].verification = { status: 'verified', notes: [] };
+  const created = await api(srv.base, 'POST', '/api/contests', body, alice.token);
+  assert.equal(created.status, 201);
+  assert.equal(created.body.contest.problems[0].verification.status, 'unverified');
+  const id = created.body.contest._id;
+
+  assert.equal((await api(srv.base, 'GET', `/api/contests/${id}`, null, bob.token)).status, 403);
+  assert.equal((await api(srv.base, 'GET', '/api/contests', null, alice.token)).body.contests[0].problemCount, 2);
+  assert.equal((await api(srv.base, 'DELETE', `/api/contests/${id}`, null, alice.token)).status, 204);
+});
+
 test('invalid quiz bodies are rejected with 400', async (t) => {
   if (!srv) return t.skip('MONGODB_URI not set');
   const host = await registerHost(srv.base);
