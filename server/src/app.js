@@ -8,6 +8,7 @@ import { dbConnected } from './db.js';
 import { AppError } from './utils/AppError.js';
 import { authRouter } from './routes/auth.js';
 import { quizzesRouter } from './routes/quizzes.js';
+import { sessionsRouter } from './routes/sessions.js';
 
 export function createApp() {
   const app = express();
@@ -24,6 +25,7 @@ export function createApp() {
 
   app.use('/api/auth', authRouter);
   app.use('/api/quizzes', quizzesRouter);
+  app.use('/api/sessions', sessionsRouter);
 
   // Unknown /api route.
   app.use('/api', (req, res, next) => next(new AppError(404, 'Not found')));
